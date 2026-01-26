@@ -6,6 +6,8 @@ interface SoundCardProps {
   sound: Sound;
   isPlaying: boolean;
   progress: number;
+  currentTime: number;
+  duration: number;
   isFavorite: boolean;
   isHighlighted: boolean;
   hasError: boolean;
@@ -19,6 +21,8 @@ export const SoundCard: React.FC<SoundCardProps> = ({
   sound,
   isPlaying,
   progress,
+  currentTime,
+  duration,
   isFavorite,
   isHighlighted,
   hasError,
@@ -27,6 +31,15 @@ export const SoundCard: React.FC<SoundCardProps> = ({
   onCopyLink,
   onDelete,
 }) => {
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const remainingTime = duration - currentTime;
+
   return (
     <div
       className={`group relative bg-slate-900/40 border transition-all duration-500 rounded-lg overflow-hidden flex flex-col h-full ${
@@ -35,7 +48,7 @@ export const SoundCard: React.FC<SoundCardProps> = ({
           : hasError
           ? 'border-red-500/50 bg-red-950/10'
           : isHighlighted
-          ? 'border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]'
+          ? 'border-yellow-500 shadow-[0_0_15_rgba(234,179,8,0.3)]'
           : 'border-slate-800 hover:border-slate-600 hover:bg-slate-800/40'
       }`}
     >
@@ -89,42 +102,65 @@ export const SoundCard: React.FC<SoundCardProps> = ({
           {sound.name}
         </h3>
 
-        <div className="mt-auto pt-4 flex items-center justify-between">
-          <button
-            onClick={() => onPlay(sound.id, sound.src)}
-            className={`p-3 rounded-full transition-all duration-300 ${
-              isPlaying
-                ? 'bg-cyan-500 text-slate-950 scale-110 shadow-[0_0_15px_rgba(34,211,238,0.6)]'
-                : 'bg-slate-800 text-cyan-400 hover:bg-slate-700 hover:text-cyan-200'
-            }`}
-          >
-            {isPlaying ? (
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-              </svg>
-            )}
-          </button>
+        <div className="mt-auto pt-4 flex flex-col gap-3">
+          {/* Time Display HUD */}
+          {isPlaying && (
+            <div className="flex justify-between items-center text-[9px] font-sci-fi text-cyan-500/80 tracking-tighter">
+              <span className="bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-500/20">
+                {formatTime(currentTime)}
+              </span>
+              <span className="animate-pulse">|</span>
+              <span className="bg-slate-950/40 px-1.5 py-0.5 rounded border border-slate-700/50">
+                -{formatTime(remainingTime)}
+              </span>
+            </div>
+          )}
 
-          <button
-            onClick={() => onCopyLink(sound.id)}
-            className="text-slate-500 hover:text-cyan-400 transition-colors p-2"
-            title="Copiar Link"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => onPlay(sound.id, sound.src)}
+              className={`p-3 rounded-full transition-all duration-300 ${
+                isPlaying
+                  ? 'bg-cyan-500 text-slate-950 scale-110 shadow-[0_0_15px_rgba(34,211,238,0.6)]'
+                  : 'bg-slate-800 text-cyan-400 hover:bg-slate-700 hover:text-cyan-200'
+              }`}
+            >
+              {isPlaying ? (
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
+
+            <button
+              onClick={() => onCopyLink(sound.id)}
+              className="text-slate-500 hover:text-cyan-400 transition-colors p-2"
+              title="Copiar Link"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Progress Bar */}
-      {isPlaying && (
-        <div className="absolute bottom-0 left-0 h-1 bg-cyan-500 transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(34,211,238,1)]" style={{ width: `${progress}%` }}></div>
-      )}
+      {/* Progress Bar Container */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-950/50 overflow-hidden">
+        {isPlaying && (
+          <div 
+            className="h-full bg-cyan-500 transition-all duration-150 ease-linear shadow-[0_0_12px_rgba(34,211,238,1)] relative" 
+            style={{ width: `${progress}%` }}
+          >
+            {/* Energy Particle Effect */}
+            <div className="absolute right-0 top-0 h-full w-2 bg-white blur-[2px] opacity-50"></div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

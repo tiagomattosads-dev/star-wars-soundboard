@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { currentId, isPlaying, progress, errorId, play, stop } = useAudioPlayer();
+  const { currentId, isPlaying, progress, currentTime, duration, errorId, play, stop } = useAudioPlayer();
 
   // Load data from localStorage
   useEffect(() => {
@@ -131,7 +131,6 @@ const App: React.FC = () => {
         tags: ['uploaded', 'local']
       });
       
-      // Reset input
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsDataURL(file);
@@ -195,6 +194,8 @@ const App: React.FC = () => {
                   sound={sound}
                   isPlaying={currentId === sound.id && isPlaying}
                   progress={currentId === sound.id ? progress : 0}
+                  currentTime={currentId === sound.id ? currentTime : 0}
+                  duration={currentId === sound.id ? duration : 0}
                   isFavorite={favorites.includes(sound.id)}
                   isHighlighted={highlightedId === sound.id}
                   hasError={errorId === sound.id}

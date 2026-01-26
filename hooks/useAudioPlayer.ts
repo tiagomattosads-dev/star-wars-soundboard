@@ -5,6 +5,8 @@ export const useAudioPlayer = () => {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [errorId, setErrorId] = useState<string | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -16,31 +18,40 @@ export const useAudioPlayer = () => {
     const handleEnded = () => {
       setIsPlaying(false);
       setProgress(0);
+      setCurrentTime(0);
       setCurrentId(null);
     };
 
     const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      setDuration(audio.duration || 0);
       if (audio.duration) {
         setProgress((audio.currentTime / audio.duration) * 100);
       }
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
     };
 
     const handleError = () => {
       setErrorId(audio.dataset.id || 'unknown');
       setIsPlaying(false);
       setProgress(0);
+      setCurrentTime(0);
       setCurrentId(null);
-      // Automatically clear error after 3 seconds
       setTimeout(() => setErrorId(null), 3000);
     };
 
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('error', handleError);
       audio.pause();
     };
@@ -49,13 +60,11 @@ export const useAudioPlayer = () => {
   const play = useCallback((id: string, src: string) => {
     if (!audioRef.current) return;
 
-    // If same sound is playing, stop it
     if (currentId === id && isPlaying) {
       stop();
       return;
     }
 
-    // Prepare new sound
     audioRef.current.pause();
     audioRef.current.src = src;
     audioRef.current.dataset.id = id;
@@ -77,6 +86,7 @@ export const useAudioPlayer = () => {
       setIsPlaying(false);
       setCurrentId(null);
       setProgress(0);
+      setCurrentTime(0);
     }
   }, []);
 
@@ -84,6 +94,8 @@ export const useAudioPlayer = () => {
     currentId,
     isPlaying,
     progress,
+    currentTime,
+    duration,
     errorId,
     play,
     stop
