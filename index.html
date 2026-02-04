@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Star Wars Soundboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -13,29 +13,69 @@
             background-color: #020617; /* Slate 950 */
             color: #f8fafc;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         .font-sci-fi {
             font-family: 'Orbitron', sans-serif;
         }
-        /* Custom scrollbar for HUD feel */
+        
+        /* Estilo da barra de rolagem para Desktop */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #020617;
         }
         ::-webkit-scrollbar-thumb {
             background: #1e293b;
-            border-radius: 4px;
+            border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #334155;
         }
+
+        /* ESCONDER SCROLLBAR NO MOBILE (Global) */
+        @media (max-width: 768px) {
+            ::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+            }
+            * {
+                -ms-overflow-style: none !important; /* IE and Edge */
+                scrollbar-width: none !important; /* Firefox */
+            }
+        }
+
+        /* Classe utilitária específica */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
         .hologram-glow {
             box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
         }
         .imperial-glow {
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Animação suave para seleção de cards */
+        .category-card-active {
+            animation: card-flicker 2s infinite alternate;
+        }
+
+        @keyframes card-flicker {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; filter: brightness(1.2); }
+        }
+
+        /* Mobile safe area padding */
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
         }
     </style>
 <script type="importmap">
